@@ -24,6 +24,8 @@ private:
     QString getArchiveName(QString ArchiveName);
     QString getDateTime();
     void addSlash(QString *Text);
+    void findFiles(const QDir &Dir);
+    QByteArray fileCheckSum(const QString &FileName, QCryptographicHash::Algorithm HashAlgorithm);
 
     QMap<QString, QString> TaskIni, Task;
 };

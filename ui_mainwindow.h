@@ -32,12 +32,12 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(560, 207);
+        MainWindow->resize(718, 354);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         textEdit_Log = new QTextEdit(centralWidget);
         textEdit_Log->setObjectName(QStringLiteral("textEdit_Log"));
-        textEdit_Log->setGeometry(QRect(0, 0, 561, 192));
+        textEdit_Log->setGeometry(QRect(0, 0, 711, 331));
         textEdit_Log->setMinimumSize(QSize(561, 192));
         MainWindow->setCentralWidget(centralWidget);
         statusBar = new QStatusBar(MainWindow);

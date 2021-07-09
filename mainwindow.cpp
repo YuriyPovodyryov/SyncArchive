@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
            To   = iter.value();
            addSlash(&To);
 
+           findFiles(From);
+
            FileName    = tr("%1_%2").arg(getArchiveName(From)).arg(getDateTime());
            FileNameRar = tr("%1.rar").arg(FileName);
            proc.start(tr("WinRAR.exe a -m5 -r %1 %2").arg(FileName).arg(From));
@@ -49,6 +51,41 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     }
 
 }
+
+
+void MainWindow::findFiles(const QDir &Dir)
+{
+    qApp->processEvents();
+    QStringList ListFiles = Dir.entryList(QDir::Files);
+    foreach (QString Files, ListFiles) {
+        QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
+        QString Hash(fileCheckSum(Dir.absoluteFilePath(Files), QCryptographicHash::Sha1));
+        ui->textEdit_Log->append(Dir.absoluteFilePath(Files) + ArrowRight + Hash);
+    }
+
+    QStringList ListDir = Dir.entryList(QDir::Dirs);
+    foreach (QString SubDir, ListDir) {
+        if (SubDir == "." || SubDir == "..") {
+            continue;
+        }
+        findFiles(QDir(Dir.absoluteFilePath(SubDir)));
+    }
+}
+
+
+
+QByteArray MainWindow::fileCheckSum(const QString &FileName, QCryptographicHash::Algorithm HashAlgorithm)
+{
+    QFile F(FileName);
+    if (F.open(QFile::ReadOnly)) {
+        QCryptographicHash Hash(HashAlgorithm);
+        if (Hash.addData(&F)) {
+            return(Hash.result().toHex());
+        }
+    }
+    return QByteArray();
+}
+
 
 
 void MainWindow::addSlash(QString *Text)
