@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>718</width>
-    <height>354</height>
+    <width>713</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,6 +28,19 @@
       <width>561</width>
       <height>192</height>
      </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Sync">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>350</y>
+      <width>121</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Синхронизировать</string>
     </property>
    </widget>
   </widget>

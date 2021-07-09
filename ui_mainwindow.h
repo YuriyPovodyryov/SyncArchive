@@ -15,6 +15,7 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
@@ -26,19 +27,23 @@ class Ui_MainWindow
 public:
     QWidget *centralWidget;
     QTextEdit *textEdit_Log;
+    QPushButton *pushButton_Sync;
     QStatusBar *statusBar;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(718, 354);
+        MainWindow->resize(713, 410);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         textEdit_Log = new QTextEdit(centralWidget);
         textEdit_Log->setObjectName(QStringLiteral("textEdit_Log"));
         textEdit_Log->setGeometry(QRect(0, 0, 711, 331));
         textEdit_Log->setMinimumSize(QSize(561, 192));
+        pushButton_Sync = new QPushButton(centralWidget);
+        pushButton_Sync->setObjectName(QStringLiteral("pushButton_Sync"));
+        pushButton_Sync->setGeometry(QRect(20, 350, 121, 23));
         MainWindow->setCentralWidget(centralWidget);
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
@@ -52,6 +57,7 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
+        pushButton_Sync->setText(QApplication::translate("MainWindow", "\320\241\320\270\320\275\321\205\321\200\320\276\320\275\320\270\320\267\320\270\321\200\320\276\320\262\320\260\321\202\321\214", 0));
     } // retranslateUi
 
 };

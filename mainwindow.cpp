@@ -12,55 +12,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     setWindowTitle(Caption);
     TaskIni.insert(tr("C:/PCOSFirmware/"), tr("H:/PCOSFirmware/"));
     readSettings();
-
-    QProcess proc;
-    QFile file;
-    QString From, To;
-    QString FileName, FileNameRar;
-
-    QMapIterator<QString, QString> iter(Task);
-
-    while (iter.hasNext()) {
-           iter.next();
-
-           From = iter.key();
-           addSlash(&From);
-
-           To   = iter.value();
-           addSlash(&To);
-
-           findFiles(From);
-
-           FileName    = tr("%1_%2").arg(getArchiveName(From)).arg(getDateTime());
-           FileNameRar = tr("%1.rar").arg(FileName);
-           proc.start(tr("WinRAR.exe a -m5 -r %1 %2").arg(FileName).arg(From));
-           proc.waitForFinished(-1);
-
-           From += tr("%1").arg(FileNameRar);
-           To   += tr("%1").arg(FileNameRar);
-
-           if (!file.copy(FileNameRar, To)) {
-               QString FailedCopy = QString::fromLocal8Bit("Неудачное копирование архива!");
-               ui->textEdit_Log->append(FailedCopy);
-           } else {
-               QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
-               ui->textEdit_Log->append(FileNameRar + ArrowRight + To);
-               //  Удалить исходный архив
-               file.remove(FileNameRar);
-           }
-    }
-
 }
 
 
-void MainWindow::findFiles(const QDir &Dir)
+
+void MainWindow::hashingFiles(const QString &Dir)
 {
-    qApp->processEvents();
+    QString FileININame = tr("%1.ini").arg(getArchiveName(Dir));
+    QSettings *FileHash = new QSettings(FileININame, QSettings::IniFormat);
+    FileHash->setIniCodec("CP1251");
+    findFiles(Dir, FileHash);
+    FileHash->sync();
+}
+
+
+
+
+void MainWindow::findFiles(const QDir &Dir, QSettings *FileHash)
+{
+//    qApp->processEvents();
+
     QStringList ListFiles = Dir.entryList(QDir::Files);
     foreach (QString Files, ListFiles) {
         QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
-        QString Hash(fileCheckSum(Dir.absoluteFilePath(Files), QCryptographicHash::Sha1));
-        ui->textEdit_Log->append(Dir.absoluteFilePath(Files) + ArrowRight + Hash);
+        QString Hash(fileCheckSum(Dir.absoluteFilePath(Files), QCryptographicHash::Sha256));
+        QString File(Dir.absoluteFilePath(Files));
+        ui->textEdit_Log->append(File + ArrowRight + Hash);
+        FileHash->setValue(tr("SHA256/%1").arg(File), Hash);
     }
 
     QStringList ListDir = Dir.entryList(QDir::Dirs);
@@ -68,7 +46,7 @@ void MainWindow::findFiles(const QDir &Dir)
         if (SubDir == "." || SubDir == "..") {
             continue;
         }
-        findFiles(QDir(Dir.absoluteFilePath(SubDir)));
+        findFiles(QDir(Dir.absoluteFilePath(SubDir)), FileHash);
     }
 }
 
@@ -195,4 +173,46 @@ void MainWindow::writeSettings()
             Counter++;
           }
     sett->sync();
+}
+
+
+
+void MainWindow::on_pushButton_Sync_clicked()
+{
+    QProcess proc;
+    QFile file;
+    QString From, To;
+    QString FileName, FileNameRar;
+
+    QMapIterator<QString, QString> iter(Task);
+
+    while (iter.hasNext()) {
+           iter.next();
+
+           From = iter.key();
+           addSlash(&From);
+
+           To   = iter.value();
+           addSlash(&To);
+
+           hashingFiles(From);
+
+           FileName    = tr("%1_%2").arg(getArchiveName(From)).arg(getDateTime());
+           FileNameRar = tr("%1.rar").arg(FileName);
+           proc.start(tr("WinRAR.exe a -m5 -r %1 %2").arg(FileName).arg(From));
+           proc.waitForFinished(-1);
+
+           From += tr("%1").arg(FileNameRar);
+           To   += tr("%1").arg(FileNameRar);
+
+           if (!file.copy(FileNameRar, To)) {
+               QString FailedCopy = QString::fromLocal8Bit("Неудачное копирование архива!");
+               ui->textEdit_Log->append(FailedCopy);
+           } else {
+               QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
+               ui->textEdit_Log->append(FileNameRar + ArrowRight + To);
+               //  Удалить исходный архив
+               file.remove(FileNameRar);
+           }
+    }
 }
