@@ -32,6 +32,7 @@ private:
     QByteArray fileCheckSum(const QString &FileName, QCryptographicHash::Algorithm HashAlgorithm);
 
     QMap<QString, QString> TaskIni, Task;
+    int Count;
 };
 
 #endif // MAINWINDOW_H

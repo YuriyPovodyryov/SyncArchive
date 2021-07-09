@@ -47,3 +47,4 @@ test/
 /Makefile.Release
 /sync_archive.ini
 /*.ini
+/img/sync.png

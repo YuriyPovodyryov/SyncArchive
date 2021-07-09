@@ -8,17 +8,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
+    setWindowIcon(QIcon(":/img/sync.ico"));
     QString Caption = QString::fromLocal8Bit("Синхронизация архивов");
     setWindowTitle(Caption);
     TaskIni.insert(tr("C:/PCOSFirmware/"), tr("H:/PCOSFirmware/"));
     readSettings();
+    Count = 0;
 }
 
 
 
 void MainWindow::hashingFiles(const QString &Dir)
 {
-    QString FileININame = tr("%1.ini").arg(getArchiveName(Dir));
+    QString FileININame = tr("%1.txt").arg(getArchiveName(Dir));
     QSettings *FileHash = new QSettings(FileININame, QSettings::IniFormat);
     FileHash->setIniCodec("CP1251");
     findFiles(Dir, FileHash);
@@ -30,7 +32,8 @@ void MainWindow::hashingFiles(const QString &Dir)
 
 void MainWindow::findFiles(const QDir &Dir, QSettings *FileHash)
 {
-//    qApp->processEvents();
+    if (!(Count % 10)) qApp->processEvents();
+    Count++;
 
     QStringList ListFiles = Dir.entryList(QDir::Files);
     foreach (QString Files, ListFiles) {

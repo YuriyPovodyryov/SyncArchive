@@ -4,10 +4,10 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(syncarchive);
     QStringList paths = QCoreApplication::libraryPaths();
     paths.append(".");
     paths.append("platforms");
-    //paths.append("sqldrivers");
 
     QApplication a(argc, argv);
 
