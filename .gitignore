@@ -48,3 +48,4 @@ test/
 /sync_archive.ini
 /*.ini
 /img/sync.png
+/*.txt

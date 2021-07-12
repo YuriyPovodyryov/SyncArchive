@@ -23,6 +23,7 @@ void MainWindow::hashingFiles(const QString &Dir)
     QString FileININame = tr("%1.txt").arg(getArchiveName(Dir));
     QSettings *FileHash = new QSettings(FileININame, QSettings::IniFormat);
     FileHash->setIniCodec("CP1251");
+    FileHash->remove("");
     findFiles(Dir, FileHash);
     FileHash->sync();
 }
@@ -40,6 +41,9 @@ void MainWindow::findFiles(const QDir &Dir, QSettings *FileHash)
         QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
         QString Hash(fileCheckSum(Dir.absoluteFilePath(Files), QCryptographicHash::Sha256));
         QString File(Dir.absoluteFilePath(Files));
+        //qDebug() << Dir.absoluteFilePath(Files);
+        File = Dir.relativeFilePath(Files);
+
         ui->textEdit_Log->append(File + ArrowRight + Hash);
         FileHash->setValue(tr("SHA256/%1").arg(File), Hash);
     }
@@ -148,15 +152,22 @@ void MainWindow::readSettings()
     QString From, To;
     Task.clear();
 
+    QString Str = QString::fromLocal8Bit("Задачи синхронизации:\n------------------------------");
+    ui->textEdit_Log->append(Str);
     for (int i = 0; i < Size; i++) {
-     From = sett->value(tr("TASK%1/FROM").arg(i)).toString();
-     To = sett->value(tr("TASK%1/TO").arg(i)).toString();
-     Task.insert(From, To);
+         From = sett->value(tr("TASK%1/FROM").arg(i)).toString();
+         To = sett->value(tr("TASK%1/TO").arg(i)).toString();
+         Task.insert(From, To);
+
+         QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
+         QString FileNameRar = QString::fromLocal8Bit("<strong>%1_(дата_время).rar</strong>").arg(getArchiveName(From));
+         Str = QString::fromLocal8Bit("Задача %1: Архивировать %2 ").arg(i + 1).arg(From);
+         ui->textEdit_Log->append(Str + ArrowRight + To + FileNameRar);
     }
 
     if (!Task.size()) {
-     Task = TaskIni;
-     writeSettings();
+        Task = TaskIni;
+        writeSettings();
     }
 }
 
@@ -213,7 +224,9 @@ void MainWindow::on_pushButton_Sync_clicked()
                ui->textEdit_Log->append(FailedCopy);
            } else {
                QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
-               ui->textEdit_Log->append(FileNameRar + ArrowRight + To);
+               ui->textEdit_Log->append("------------------------------");
+               QString Move = QString::fromLocal8Bit("Перемещение ");
+               ui->textEdit_Log->append(Move + FileNameRar + ArrowRight + To);
                //  Удалить исходный архив
                file.remove(FileNameRar);
            }

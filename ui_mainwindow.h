@@ -48,6 +48,7 @@ public:
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
         MainWindow->setStatusBar(statusBar);
+        QWidget::setTabOrder(pushButton_Sync, textEdit_Log);
 
         retranslateUi(MainWindow);
 
