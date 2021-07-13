@@ -9,19 +9,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     setWindowIcon(QIcon(":/img/sync.ico"));
-    QString Caption = QString::fromLocal8Bit("Синхронизация архивов");
+    QString Caption = QString::fromLocal8Bit("Синхронизация архивов / подсчёт SHA256");
     setWindowTitle(Caption);
     TaskIni.insert(tr("C:/PCOSFirmware/"), tr("H:/PCOSFirmware/"));
     readSettings();
     Count = 0;
+    ui->textEdit_Log->setAcceptRichText(true);
 }
 
 
 
-void MainWindow::hashingFiles(const QString &Dir)
+void MainWindow::hashingFiles(const QString &Dir, const QString &FileNameHash)
 {
-    QString FileININame = tr("%1.txt").arg(getArchiveName(Dir));
-    QSettings *FileHash = new QSettings(FileININame, QSettings::IniFormat);
+    QSettings *FileHash = new QSettings(FileNameHash, QSettings::IniFormat);
     FileHash->setIniCodec("CP1251");
     FileHash->remove("");
     findFiles(Dir, FileHash);
@@ -152,11 +152,14 @@ void MainWindow::readSettings()
     QString From, To;
     Task.clear();
 
+
     QString Str = QString::fromLocal8Bit("Задачи синхронизации:\n------------------------------");
     ui->textEdit_Log->append(Str);
+
+
     for (int i = 0; i < Size; i++) {
          From = sett->value(tr("TASK%1/FROM").arg(i)).toString();
-         To = sett->value(tr("TASK%1/TO").arg(i)).toString();
+         To   = sett->value(tr("TASK%1/TO").arg(i)).toString();
          Task.insert(From, To);
 
          QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
@@ -195,40 +198,66 @@ void MainWindow::on_pushButton_Sync_clicked()
 {
     QProcess proc;
     QFile file;
-    QString From, To;
-    QString FileName, FileNameRar;
+    QString FromRar, ToRar, ToHash;
+    QString FileName, FileNameRar, FileNameHash;
 
     QMapIterator<QString, QString> iter(Task);
 
     while (iter.hasNext()) {
            iter.next();
 
-           From = iter.key();
-           addSlash(&From);
+           FromRar = iter.key();
+           addSlash(&FromRar);
 
-           To   = iter.value();
-           addSlash(&To);
+           ToRar   = iter.value();
+           addSlash(&ToRar);
+           ToHash =  ToRar;
 
-           hashingFiles(From);
+           QString DateTime(getDateTime());
 
-           FileName    = tr("%1_%2").arg(getArchiveName(From)).arg(getDateTime());
+           FileName    = tr("%1_%2").arg(getArchiveName(FromRar)).arg(DateTime);
            FileNameRar = tr("%1.rar").arg(FileName);
-           proc.start(tr("WinRAR.exe a -m5 -r %1 %2").arg(FileName).arg(From));
+           FileNameHash = tr("%1.txt").arg(FileName);
+           hashingFiles(FromRar, FileNameHash);
+
+           proc.start(tr("WinRAR.exe a -m5 -r %1 %2").arg(FileName).arg(FromRar));
            proc.waitForFinished(-1);
 
-           From += tr("%1").arg(FileNameRar);
-           To   += tr("%1").arg(FileNameRar);
+           FromRar += tr("%1").arg(FileNameRar);
+           ToRar   += tr("%1").arg(FileNameRar);
+           ToHash  += tr("%1").arg(FileNameHash);
 
-           if (!file.copy(FileNameRar, To)) {
+           //   Перемещение файла архива
+           QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
+           if (!file.copy(FileNameRar, ToRar)) {
                QString FailedCopy = QString::fromLocal8Bit("Неудачное копирование архива!");
                ui->textEdit_Log->append(FailedCopy);
            } else {
-               QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
                ui->textEdit_Log->append("------------------------------");
                QString Move = QString::fromLocal8Bit("Перемещение ");
-               ui->textEdit_Log->append(Move + FileNameRar + ArrowRight + To);
+               ui->textEdit_Log->append(Move + FileNameRar + ArrowRight + ToRar);
                //  Удалить исходный архив
                file.remove(FileNameRar);
            }
+
+           //   Перемещение файла хэшей
+           if (!file.copy(FileNameHash, ToHash)) {
+               qDebug() << FileNameHash << ToHash;
+               QString FailedCopy = QString::fromLocal8Bit("Неудачное копирование списка хэшей!");
+               ui->textEdit_Log->append(FailedCopy);
+           } else {
+               ui->textEdit_Log->append("------------------------------");
+               QString Move = QString::fromLocal8Bit("Перемещение ");
+               ui->textEdit_Log->append(Move + FileNameHash + ArrowRight + ToHash);
+               //  Удалить исходный архив
+               file.remove(FileNameHash);
+           }
     }
+}
+
+
+
+void MainWindow::on_pushButton_Exit_clicked()
+{
+    qApp->exit();
 }

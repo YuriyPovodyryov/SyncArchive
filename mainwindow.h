@@ -20,6 +20,8 @@ public:
 private slots:
     void on_pushButton_Sync_clicked();
 
+    void on_pushButton_Exit_clicked();
+
 private:
     Ui::MainWindow *ui;
     void readSettings();
@@ -28,7 +30,7 @@ private:
     QString getDateTime();
     void addSlash(QString *Text);
     void findFiles(const QDir &Dir, QSettings *FileHash);
-    void hashingFiles(const QString &Dir);
+    void hashingFiles(const QString &Dir, const QString &FileNameHash);
     QByteArray fileCheckSum(const QString &FileName, QCryptographicHash::Algorithm HashAlgorithm);
 
     QMap<QString, QString> TaskIni, Task;
