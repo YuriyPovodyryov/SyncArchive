@@ -31,6 +31,7 @@ private:
     void addSlash(QString *Text);
     void findFiles(const QDir &Dir, const QDir &FirstDir, QSettings *FileHash);
     void hashingFiles(const QString &Dir, const QString &FileNameHash);
+    QString getLastSync(const QString &From, const QString &To);
     QByteArray fileCheckSum(const QString &FileName, QCryptographicHash::Algorithm HashAlgorithm);
 
     QMap<QString, QString> TaskIni, Task;

@@ -35,8 +35,6 @@ void MainWindow::findFiles(const QDir &Dir, const QDir &FirstDir, QSettings *Fil
     if (!(Count % 10)) qApp->processEvents();
     Count++;
 
-
-
     QStringList ListFiles = Dir.entryList(QDir::Files);
     foreach (QString Files, ListFiles) {
         QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
@@ -164,6 +162,14 @@ void MainWindow::readSettings()
          QString FileNameRar = QString::fromLocal8Bit("<strong>%1_(дата_время).rar</strong>").arg(getArchiveName(From));
          Str = QString::fromLocal8Bit("Задача %1: Архивировать %2 ").arg(i + 1).arg(From);
          ui->textEdit_Log->append(Str + ArrowRight + To + FileNameRar);
+
+         if (getLastSync(From, To) == "") {
+             Str = QString::fromLocal8Bit("Первая синхронизация!");
+             ui->textEdit_Log->append(Str);
+         } else {
+             Str = QString::fromLocal8Bit("Последняя синхронизация была ");
+             ui->textEdit_Log->append(Str + getLastSync(From, To));
+         }
     }
 
     if (!Task.size()) {
@@ -172,6 +178,32 @@ void MainWindow::readSettings()
     }
 }
 
+
+
+//  Получить данные о последней синхронизации
+QString MainWindow::getLastSync(const QString &From, const QString &To)
+{
+    QString LastSync("");
+    QDir Dir = To;
+    QStringList ListFiles = Dir.entryList(QStringList() << "*.txt", QDir::Files);
+
+    QString MaxDateTime("");
+    foreach (QString Files, ListFiles) {
+             QStringList Name = Files.split('.');
+             QStringList DateTime;
+             DateTime = Name[0].split("_");
+
+             if (DateTime[0] == getArchiveName(From)) {
+                 QString Id = DateTime[1] + DateTime[2];
+                 if (MaxDateTime < Id) MaxDateTime = Id;
+             }
+    }
+
+    LastSync = MaxDateTime.mid(0, 4) + "-" + MaxDateTime.mid(4, 2) + "-" + MaxDateTime.mid(6, 2) + " " +
+               MaxDateTime.mid(8, 2) + ":" + MaxDateTime.mid(10, 2) + ":" + MaxDateTime.mid(12, 2);
+
+    return(LastSync);
+}
 
 
 void MainWindow::writeSettings()
