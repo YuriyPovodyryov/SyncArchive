@@ -13,11 +13,14 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTextEdit>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -26,8 +29,11 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralWidget;
+    QVBoxLayout *verticalLayout;
     QTextEdit *textEdit_Log;
+    QHBoxLayout *horizontalLayout;
     QPushButton *pushButton_Sync;
+    QSpacerItem *horizontalSpacer;
     QPushButton *pushButton_Exit;
     QStatusBar *statusBar;
 
@@ -38,21 +44,50 @@ public:
         MainWindow->resize(712, 390);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        verticalLayout = new QVBoxLayout(centralWidget);
+        verticalLayout->setSpacing(10);
+        verticalLayout->setContentsMargins(11, 11, 11, 11);
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
         textEdit_Log = new QTextEdit(centralWidget);
         textEdit_Log->setObjectName(QStringLiteral("textEdit_Log"));
-        textEdit_Log->setGeometry(QRect(0, 0, 711, 331));
         textEdit_Log->setMinimumSize(QSize(561, 192));
+
+        verticalLayout->addWidget(textEdit_Log);
+
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        horizontalLayout->setContentsMargins(10, -1, 10, -1);
         pushButton_Sync = new QPushButton(centralWidget);
         pushButton_Sync->setObjectName(QStringLiteral("pushButton_Sync"));
-        pushButton_Sync->setGeometry(QRect(10, 340, 121, 23));
+        pushButton_Sync->setMaximumSize(QSize(150, 16777215));
+        QIcon icon;
+        icon.addFile(QStringLiteral(":/img/sync.ico"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_Sync->setIcon(icon);
+
+        horizontalLayout->addWidget(pushButton_Sync);
+
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer);
+
         pushButton_Exit = new QPushButton(centralWidget);
         pushButton_Exit->setObjectName(QStringLiteral("pushButton_Exit"));
-        pushButton_Exit->setGeometry(QRect(570, 340, 121, 23));
+        pushButton_Exit->setMaximumSize(QSize(150, 16777215));
+        QIcon icon1;
+        icon1.addFile(QStringLiteral(":/img/exit.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton_Exit->setIcon(icon1);
+
+        horizontalLayout->addWidget(pushButton_Exit);
+
+
+        verticalLayout->addLayout(horizontalLayout);
+
         MainWindow->setCentralWidget(centralWidget);
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
         MainWindow->setStatusBar(statusBar);
-        QWidget::setTabOrder(pushButton_Sync, textEdit_Log);
 
         retranslateUi(MainWindow);
 
