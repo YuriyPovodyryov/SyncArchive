@@ -24,28 +24,26 @@ void MainWindow::hashingFiles(const QString &Dir, const QString &FileNameHash)
     QSettings *FileHash = new QSettings(FileNameHash, QSettings::IniFormat);
     FileHash->setIniCodec("CP1251");
     FileHash->remove("");
-    findFiles(Dir, FileHash);
+    findFiles(Dir, Dir, FileHash);
     FileHash->sync();
 }
 
 
 
-
-void MainWindow::findFiles(const QDir &Dir, QSettings *FileHash)
+void MainWindow::findFiles(const QDir &Dir, const QDir &FirstDir, QSettings *FileHash)
 {
     if (!(Count % 10)) qApp->processEvents();
     Count++;
+
+
 
     QStringList ListFiles = Dir.entryList(QDir::Files);
     foreach (QString Files, ListFiles) {
         QString ArrowRight = tr(" %1 ").arg(ARROW_RIGHT);
         QString Hash(fileCheckSum(Dir.absoluteFilePath(Files), QCryptographicHash::Sha256));
-        QString File(Dir.absoluteFilePath(Files));
-        //qDebug() << Dir.absoluteFilePath(Files);
-        File = Dir.relativeFilePath(Files);
-
-        ui->textEdit_Log->append(File + ArrowRight + Hash);
-        FileHash->setValue(tr("SHA256/%1").arg(File), Hash);
+        QString SubPath = Dir.absoluteFilePath(Files).mid(FirstDir.absolutePath().length(), Dir.absoluteFilePath(Files).length());
+        ui->textEdit_Log->append(SubPath + ArrowRight + Hash);
+        FileHash->setValue(tr("SHA256/%1").arg(SubPath), Hash);
     }
 
     QStringList ListDir = Dir.entryList(QDir::Dirs);
@@ -53,7 +51,7 @@ void MainWindow::findFiles(const QDir &Dir, QSettings *FileHash)
         if (SubDir == "." || SubDir == "..") {
             continue;
         }
-        findFiles(QDir(Dir.absoluteFilePath(SubDir)), FileHash);
+        findFiles(QDir(Dir.absoluteFilePath(SubDir)), FirstDir, FileHash);
     }
 }
 

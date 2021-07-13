@@ -29,7 +29,7 @@ private:
     QString getArchiveName(QString ArchiveName);
     QString getDateTime();
     void addSlash(QString *Text);
-    void findFiles(const QDir &Dir, QSettings *FileHash);
+    void findFiles(const QDir &Dir, const QDir &FirstDir, QSettings *FileHash);
     void hashingFiles(const QString &Dir, const QString &FileNameHash);
     QByteArray fileCheckSum(const QString &FileName, QCryptographicHash::Algorithm HashAlgorithm);
 
